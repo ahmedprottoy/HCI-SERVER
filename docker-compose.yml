@@ -1,0 +1,85 @@
+version: "3.3"
+
+services:
+  db:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${ENV_MY_SQL_PASS}
+      MYSQL_DATABASE: mw_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_volume:/path/to/mount/point
+    networks:
+      - mynetwork
+
+  rabbitmq:
+    image: rabbitmq:3.9-management
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: ${ENV_RMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${ENV_RMQ_PASS}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - mynetwork
+
+  backend:
+    build: .
+    restart: always
+    environment:
+      DATABASE_URL: mysql+pymysql://root:${ENV_MY_SQL_PASS}@db/mw_db
+      RABBITMQ_DEFAULT_USER: ${ENV_RMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${ENV_RMQ_PASS}
+      RABBITMQ_HOST: rabbitmq
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      - rabbitmq
+    networks:
+      - mynetwork
+
+  worker_1:
+    build:
+      context: .
+      dockerfile: Dockerfile.celery
+    command: celery -A main.celery worker --loglevel=debug -Q gaze_infos_1 --prefetch-multiplier 8
+    restart: always
+    environment:
+      - C_FORCE_ROOT=true
+      - CELERY_BROKER_URL=amqp://${ENV_RMQ_USER}:${ENV_RMQ_PASS}@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=rpc://
+    depends_on:
+      - db
+      - rabbitmq
+    networks:
+      - mynetwork
+    scale: 4
+  
+  # worker_2:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.celery
+  #   command: celery -A main.celery worker --loglevel=debug -Q gaze_infos_2 --prefetch-multiplier 8
+  #   restart: always
+  #   environment:
+  #     - C_FORCE_ROOT=true
+  #     - CELERY_BROKER_URL=amqp://${ENV_RMQ_USER}:${ENV_RMQ_PASS}@rabbitmq:5672//
+  #     - CELERY_RESULT_BACKEND=rpc://
+  #   depends_on:
+  #     - db
+  #     - rabbitmq
+  #   networks:
+  #     - mynetwork
+  #   scale: 4
+    
+
+networks:
+  mynetwork:
+
+volumes:
+  db_volume:
+    external: true

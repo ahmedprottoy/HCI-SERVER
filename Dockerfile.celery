@@ -1,0 +1,21 @@
+# Use an official Python runtime as a parent image
+FROM python:3.9-slim-buster
+
+# Set the working directory to /app
+WORKDIR /app
+
+# Copy the requirements file into the container and install dependencies
+COPY requirements.txt /app
+
+RUN pip install --upgrade pip && \
+    pip install --trusted-host pypi.python.org -r requirements.txt
+
+# Copy the application code into the container
+COPY . .
+
+# Set environment variables
+ENV CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+ENV CELERY_RESULT_BACKEND=rpc://
+
+# Run the Celery worker command
+# CMD ["celery", "-A", "main.celery", "worker", "--loglevel=info"]

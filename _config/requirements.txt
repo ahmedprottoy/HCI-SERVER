@@ -1,0 +1,6 @@
+fastapi
+univorn
+celery
+flower
+httpx
+vine=1.3.0
