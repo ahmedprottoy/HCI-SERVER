@@ -52,3 +52,5 @@ class Student:
         if added_record == None:
             raise HTTPException(500, "Could not add record")
         return add_class_record
+
+    

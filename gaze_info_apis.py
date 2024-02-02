@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi_utils.cbv import cbv
 from sqlalchemy.orm import Session
-from gaze_info_crud import create_gaze_info, get_gaze_infos
+from gaze_info_crud import create_gaze_info, get_gaze_infos,  get_gaze_infos_by_student_id,get_gaze_info_row_count_db
 from database import get_db
 from schemas import GazeInfo, PaginatedGazeInfo, CreateAndUpdateGazeInfo
 from typing import List
@@ -36,3 +36,21 @@ class GazeInfo:
         response = {"limit": limit, "offset": offset, "data": gaze_list}
 
         return response
+
+    @router.get("/gaze/{student_id}")
+    async def get_gaze_info_by_student_id(self, student_id: int, start_timestamp: str, end_timestamp: str, limit: int = 10, offset: int = 0):
+        try:
+            gaze_list = get_gaze_infos_by_student_id(
+                self.session, student_id, start_timestamp, end_timestamp, limit, offset
+            )
+            response = {
+                "student_id": student_id,
+                "start_timestamp": start_timestamp,
+                "end_timestamp": end_timestamp,
+                "data": gaze_list,
+            }
+            return response
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+
