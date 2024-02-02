@@ -53,7 +53,7 @@ class GazeInfo:
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
-    @router.get("/gaze/count")
+    @router.get("/gaze_count")
     def get_gaze_count(self):
         count = get_gaze_count(self.session)
         return {"count": count}
