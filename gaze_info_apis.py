@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi_utils.cbv import cbv
 from sqlalchemy.orm import Session
-from gaze_info_crud import create_gaze_info, get_gaze_infos,  get_gaze_infos_by_student_id,get_gaze_info_row_count_db
+from gaze_info_crud import create_gaze_info, get_gaze_infos,  get_gaze_infos_by_student_id,get_gaze_count,truncate_gaze_table
 from database import get_db
 from schemas import GazeInfo, PaginatedGazeInfo, CreateAndUpdateGazeInfo
 from typing import List
@@ -53,4 +53,13 @@ class GazeInfo:
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
+    @router.get("/gaze/count")
+    def get_gaze_count(self):
+        count = get_gaze_count(self.session)
+        return {"count": count}
 
+
+    @router.delete("/gaze/truncate")
+    def truncate_gaze_table(self):
+        truncate_gaze_table(self.session)
+        return {"message": "Gaze table truncated successfully"}

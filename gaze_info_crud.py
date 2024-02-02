@@ -42,4 +42,10 @@ def get_gaze_infos_by_student_id(session: Session, student_id: int, start_timest
         raise e
 
 
+def get_gaze_count(session: Session) -> int:
+    count = session.query(func.count(GazeInfo.id)).scalar()
+    return count
 
+def truncate_gaze_table(session: Session):
+    session.query(GazeInfo).delete()
+    session.commit()
