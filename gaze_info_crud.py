@@ -6,6 +6,7 @@ from schemas import CreateAndUpdateGazeInfo
 from fastapi import APIRouter, Depends, HTTPException
 from database import get_db
 from sqlalchemy import func
+from typing import Optional
 
 
 def create_gaze_info(session : Session ,gaze_info: CreateAndUpdateGazeInfo) -> str:
@@ -22,22 +23,22 @@ def create_gaze_info(session : Session ,gaze_info: CreateAndUpdateGazeInfo) -> s
 def get_gaze_infos(session: Session, limit: int, offset: int) -> List[GazeInfo]:
     return session.query(GazeInfo).offset(offset).limit(limit).all()
 
-
-
-
-def get_gaze_infos_by_student_id(session: Session, student_id: int, start_timestamp: str, end_timestamp: str, limit: int, offset: int) -> List[GazeInfo]:
+    
+def get_gaze_infos_by_student_id(session: Session, student_id: int, start_timestamp: str, end_timestamp: str, limit: Optional[int] = None, offset: Optional[int] = None) -> List[GazeInfo]:
     try:
-        return (
-            session.query(GazeInfo)
-            .filter(
-                GazeInfo.student_id == student_id,
-                GazeInfo.Timestamp >= start_timestamp,
-                GazeInfo.Timestamp <= end_timestamp,
-            )
-            .offset(offset)
-            .limit(limit)
-            .all()
+        query = session.query(GazeInfo).filter(
+            GazeInfo.student_id == student_id,
+            GazeInfo.Timestamp >= start_timestamp,
+            GazeInfo.Timestamp <= end_timestamp
         )
+
+        if limit is not None:
+            query = query.limit(limit)
+        
+        if offset is not None:
+            query = query.offset(offset)
+        
+        return query.all()
     except Exception as e:
         raise e
 

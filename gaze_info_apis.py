@@ -52,7 +52,26 @@ class GazeInfo:
             return response
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
-
+        
+    
+    @router.put("/gaze/{student_id}")
+    async def update_gaze_info_by_student_id(self, student_id: int, start_timestamp: str, end_timestamp: str):
+        try:
+            gaze_list = get_gaze_infos_by_student_id(
+                self.session, student_id, start_timestamp, end_timestamp
+            )
+            
+            for gaze_info in gaze_list:
+                gaze_info.isMindWandered = True
+                
+            self.session.commit()
+            
+            return {"message": "Gaze info updated successfully"}
+        
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+        
+        
     @router.get("/gaze_count")
     def get_gaze_count(self):
         count = get_gaze_count(self.session)
