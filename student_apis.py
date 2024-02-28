@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi_utils.cbv import cbv
 from sqlalchemy.orm import Session
-from student_crud import get_all_student, get_student_info_by_id, create_student, get_student_info_by_email, add_class_record,
+from student_crud import get_all_student, get_student_info_by_id, create_student, get_student_info_by_email, add_class_record,get_class_records
 from database import get_db
 from exceptions import InfoException
 from schemas import Student, CreateAndUpdateStudent, PaginatedStudentInfo, ClassTimestampRecord, ClassTimestampSingleRecord
