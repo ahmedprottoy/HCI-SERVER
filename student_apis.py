@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi_utils.cbv import cbv
 from sqlalchemy.orm import Session
-from student_crud import get_all_student, get_student_info_by_id, create_student, get_student_info_by_email, add_class_record
+from student_crud import get_all_student, get_student_info_by_id, create_student, get_student_info_by_email, add_class_record,
 from database import get_db
 from exceptions import InfoException
 from schemas import Student, CreateAndUpdateStudent, PaginatedStudentInfo, ClassTimestampRecord, ClassTimestampSingleRecord
@@ -53,4 +53,7 @@ class Student:
             raise HTTPException(500, "Could not add record")
         return add_class_record
 
-    
+    @router.get("/teacher/getRecords")
+    def get_class_records_from_db(self):
+        records = get_class_records(self.session)
+        return records

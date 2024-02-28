@@ -47,3 +47,6 @@ def add_class_record(session: Session, class_time_stamp: ClassTimestampSingleRec
     except Exception as ex:
         print(ex)
         return None
+    
+def get_class_records(session: Session) -> List[ClassTimestampRecord]:
+    return session.query(ClassTimestampRecord).all()
